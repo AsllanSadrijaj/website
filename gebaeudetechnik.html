@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="de-CH" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Gebäudetechnik HLKKSE | SCANDIUM AG | Zürich</title>
+  <meta name="description" content="Gebäudetechnikplanung HLKKSE für Einfamilien- und Mehrfamilienhäuser: Neubau und energetische Sanierung, Energie- und Technikkonzepte, Fachplanung in allen Phasen. SCANDIUM AG, Zürich.">
+  <meta name="theme-color" content="#000000">
+  <link rel="canonical" href="https://scandium.ch/gebaeudetechnik.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SCANDIUM AG">
+  <meta property="og:title" content="Gebäudetechnik HLKKSE | SCANDIUM AG">
+  <meta property="og:description" content="Gebäudetechnik inklusive BIM, Verwaltung und Hauswartung STWEG, Sanierungen und Renovationen. Zürich.">
+  <meta property="og:url" content="https://scandium.ch/gebaeudetechnik.html">
+  <meta property="og:locale" content="de_CH">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23000'/%3E%3Ctext x='32' y='45' font-family='Montserrat,Arial,sans-serif' font-weight='700' font-size='38' text-anchor='middle' fill='%23f5f5f7'%3ES%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/css/style.css">
+
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "SCANDIUM AG",
+    "url": "https://scandium.ch",
+    "email": "info@scandium.ch",
+    "telephone": "+41 44 244 02 09",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Thurgauerstrasse 101a",
+      "postalCode": "8152",
+      "addressLocality": "Zürich",
+      "addressCountry": "CH"
+    }
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#inhalt">Zum Inhalt</a>
+
+  <canvas id="scene" data-scene="technik" aria-hidden="true"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="legend" aria-hidden="true">
+    <span data-trade="heat"><i></i>Heizung</span>
+    <span data-trade="san"><i></i>Sanitär</span>
+    <span data-trade="vent"><i></i>Lüftung</span>
+  </div>
+
+  <!-- ===== Navigation (identisch auf allen Seiten) ===== -->
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="logo" href="index.html" aria-label="SCANDIUM AG, Startseite">SCANDIUM</a>
+      <nav aria-label="Hauptnavigation">
+        <ul class="nav-links">
+          <li><a href="gebaeudetechnik.html" aria-current="page">Gebäudetechnik</a></li>
+          <li><a href="sanierungen.html">Sanierung &amp; Renovation</a></li>
+          <li><a href="verwaltung.html">Verwaltung STWEG</a></li>
+          <li><a href="ueber-uns.html">Über uns</a></li>
+          <li><a href="jobs.html">Jobs</a></li>
+          <li><a href="projekt-scanda.html">Projekt SCANDA</a></li>
+          <li><a class="btn btn-primary btn-sm" href="https://bookings.cloud.microsoft/bookwithme/user/7e6baff8b7604387a0866d429c4460c0%40scandium.ch/meetingtype/D_EdihVgykGManfOg2yS-w2?anonymous&amp;ismsaljsauthenabled" target="_blank" rel="noopener">Termin buchen</a></li>
+        </ul>
+      </nav>
+      <button class="nav-toggle" type="button" aria-label="Menü" aria-expanded="false" aria-controls="menu">
+        <span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="menu" id="menu" aria-hidden="true">
+    <ul>
+      <li><a href="gebaeudetechnik.html" aria-current="page">Gebäudetechnik</a></li>
+      <li><a href="sanierungen.html">Sanierung &amp; Renovation</a></li>
+      <li><a href="verwaltung.html">Verwaltung STWEG</a></li>
+      <li><a href="ueber-uns.html">Über uns</a></li>
+      <li><a href="jobs.html">Jobs</a></li>
+      <li><a href="projekt-scanda.html">Projekt SCANDA</a></li>
+    </ul>
+    <div class="menu-foot">
+      <a class="btn btn-primary" href="https://bookings.cloud.microsoft/bookwithme/user/7e6baff8b7604387a0866d429c4460c0%40scandium.ch/meetingtype/D_EdihVgykGManfOg2yS-w2?anonymous&amp;ismsaljsauthenabled" target="_blank" rel="noopener">Online-Termin buchen</a>
+      <span class="cta-note" style="text-align:center;padding:0">per Video, 30 Min, unverbindlich</span>
+    </div>
+  </div>
+
+  <main id="inhalt">
+    <!-- ===== Hero + Gewerke: 3D-Szene baut sich hier auf ===== -->
+    <div data-scene-end>
+      <section class="hero hero-sub">
+        <div class="container">
+          <div class="hero-content">
+            <p class="eyebrow reveal">Gebäudetechnik · HLKKSE</p>
+            <h1 class="reveal reveal-d1">Gesamte<br>Gebäudetechnik<br>aus einer Hand.</h1>
+            <p class="lead reveal reveal-d2">Planung für Einfamilien- und Mehrfamilienhäuser, im Neubau und bei der energetischen Sanierung. Von der ersten Idee bis zur Inbetriebnahme. <strong class="tagline">Strukturiert. Präzise. Verlässlich.</strong></p>
+            <div class="cta reveal reveal-d3">
+              <div class="cta-book">
+                <a class="btn btn-primary" href="https://bookings.cloud.microsoft/bookwithme/user/7e6baff8b7604387a0866d429c4460c0%40scandium.ch/meetingtype/D_EdihVgykGManfOg2yS-w2?anonymous&amp;ismsaljsauthenabled" target="_blank" rel="noopener">Online-Termin buchen</a>
+                <span class="cta-note">per Video, 30 Min, unverbindlich</span>
+              </div>
+              <a class="btn btn-ghost" href="#leistungen" style="align-self:flex-start">Leistungen ansehen</a>
+            </div>
+          </div>
+        </div>
+        <div class="scroll-hint" aria-hidden="true"></div>
+      </section>
+
+      <section class="chapter" aria-labelledby="g1">
+        <div class="container">
+          <div class="chapter-body reveal">
+            <p class="chapter-index">Sechs Gewerke · ein Modell</p>
+            <h2 id="g1">Alles greift<br>ineinander.</h2>
+            <p class="lead">Wir planen sämtliche Gewerke der Gebäudetechnik, als Gesamtplanung oder einzeln. Integral koordiniert im BIM-Modell und abgestimmt auf Architektur und Tragwerk: Schacht- und Platzbedarf früh definiert, Schnittstellen klar geregelt, Kollisionen gelöst, bevor sie auf der Baustelle entstehen.</p>
+            <ul class="specs">
+              <li><span>Heizung</span><span>H</span></li>
+              <li><span>Lüftung</span><span>L</span></li>
+              <li><span>Klima</span><span>K</span></li>
+              <li><span>Kälte</span><span>K</span></li>
+              <li><span>Sanitär</span><span>S</span></li>
+              <li><span>Elektro</span><span>E</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== Fokus ===== -->
+    <section class="section section-border" aria-labelledby="fokus">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Unser Fokus</p>
+          <h2 id="fokus">Wohnbauten.<br>Neu oder bestehend.</h2>
+          <p class="lead">Unser Schwerpunkt liegt auf Einfamilien- und Mehrfamilienhäusern. Ob Neubau oder energetische Sanierung: Die Weichen für tiefe Investitions- und Betriebskosten werden zu Beginn gestellt. Darum sind wir von Anfang an dabei.</p>
+        </div>
+        <div class="grid-2">
+          <div class="reveal">
+            <p class="num">Neubau</p>
+            <h3>Technik, die zum Entwurf passt.</h3>
+            <p>Wir entwickeln mit Bauherrschaft und Architekt das passende Energie- und Technikkonzept und planen alle Gewerke bis zur Inbetriebnahme. Nutzung, Bedarf und Bedarfsdeckung stimmen wir genau aufeinander ab.</p>
+          </div>
+          <div class="reveal reveal-d1">
+            <p class="num">Energetische Sanierung</p>
+            <h3>Bestehendes, fit für die Zukunft.</h3>
+            <p>Wir analysieren Gebäude und Anlagen gesamtheitlich, zeigen sinnvolle Massnahmen auf und begleiten die Umsetzung bis zur Abnahme. Das Ergebnis: messbar weniger Energieverbrauch und mehr Versorgungssicherheit.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Leistungen ===== -->
+    <section class="section section-light" id="leistungen" aria-labelledby="leist">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Leistungen</p>
+          <h2 id="leist">Was wir für Sie tun.</h2>
+        </div>
+        <ul class="service-list">
+          <li class="reveal"><span class="num">01</span><div><h3>Gesamtplanung Gebäudetechnik</h3><p>Alle Gewerke HLKKSE koordiniert aus einer Hand, in sämtlichen Phasen.</p></div></li>
+          <li class="reveal"><span class="num">02</span><div><h3>Fachplanung einzelner Gewerke</h3><p>Heizung, Lüftung, Klima, Kälte, Sanitär oder Elektro, auch einzeln beauftragbar.</p></div></li>
+          <li class="reveal"><span class="num">03</span><div><h3>Energie- und Technikkonzepte</h3><p>Integrale Konzepte HLKKSE als Grundlage für nachhaltige, wirtschaftliche Lösungen bis hin zu Zero-Emission.</p></div></li>
+          <li class="reveal"><span class="num">04</span><div><h3>BIM-Modellierung und Koordination</h3><p>Gebäudetechnik im gemeinsamen Modell, abgestimmt mit Architektur und Tragwerk.</p></div></li>
+          <li class="reveal"><span class="num">05</span><div><h3>Wirtschaftlichkeit und Fördergelder</h3><p>Wirtschaftlichkeitsberechnungen, Variantenvergleiche und Abklärung von Fördergeldern.</p></div></li>
+          <li class="reveal"><span class="num">06</span><div><h3>Analyse und Optimierung</h3><p>Prüfung bestehender Anlagen und Projekte sowie Qualitätssicherung der Planung.</p></div></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===== Schwerpunkte ===== -->
+    <section class="section" aria-labelledby="schwer">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Schwerpunkte im Bestand</p>
+          <h2 id="schwer">Wenn sich etwas<br>ändern muss.</h2>
+        </div>
+        <div class="grid-2">
+          <div class="reveal">
+            <p class="num">Heizungsersatz</p>
+            <h3>Die richtige Wärmeerzeugung für die nächsten Jahrzehnte.</h3>
+            <p>Erreicht die Heizung das Ende ihrer Nutzungsdauer, ermitteln wir die ökologisch und ökonomisch sinnvollste Variante und begleiten Sie bis zum Abschluss der Arbeiten.</p>
+            <ul class="specs">
+              <li><span>Variantenstudie Ökologie und Ökonomie</span></li>
+              <li><span>Validierung des Bedarfs, Massnahmen für mehr Komfort</span></li>
+              <li><span>Planung und Dimensionierung der Anlagen</span></li>
+              <li><span>Ausschreibung aller betroffenen Gewerke (Heizung, Sanitär, Elektro, Baumeister)</span></li>
+              <li><span>Überwachung und Koordination der Arbeiten</span></li>
+            </ul>
+          </div>
+          <div class="reveal reveal-d1">
+            <p class="num">Umbau und Umnutzung</p>
+            <h3>Neue Nutzung, passende Technik.</h3>
+            <p>Bei Umbau und Umnutzung müssen die klimatischen Anforderungen der neuen Nutzung erfüllt werden. Wir planen die nötigen Anpassungen und begleiten sie bis zur Abnahme.</p>
+            <ul class="specs">
+              <li><span>Konzept und Kostenermittlung nach Nutzeranforderungen</span></li>
+              <li><span>Planung und Ausschreibung der Anpassungsarbeiten</span></li>
+              <li><span>Begleitung des Umbaus, Abnahme sämtlicher Gewerke</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Ablauf ===== -->
+    <section class="section section-border" aria-labelledby="ablauf">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Ablauf</p>
+          <h2 id="ablauf">Von der Idee<br>bis zur Inbetriebnahme.</h2>
+          <p class="lead">Wir begleiten Ihr Projekt durch alle Phasen oder steigen dort ein, wo Sie uns brauchen.</p>
+        </div>
+        <ol class="steps">
+          <li class="reveal"><span>01</span>Bedürfnisse und Beratung</li>
+          <li class="reveal reveal-d1"><span>02</span>Machbarkeitsstudie</li>
+          <li class="reveal reveal-d2"><span>03</span>Vorprojekt</li>
+          <li class="reveal reveal-d3"><span>04</span>Bauprojekt</li>
+          <li class="reveal"><span>05</span>Bewilligungsverfahren</li>
+          <li class="reveal reveal-d1"><span>06</span>Ausschreibung und Vergabe</li>
+          <li class="reveal reveal-d2"><span>07</span>Ausführungsplanung</li>
+          <li class="reveal reveal-d3"><span>08</span>Inbetriebnahme</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== Arbeitsweise ===== -->
+    <section class="section section-border" aria-labelledby="ansatz">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Arbeitsweise</p>
+          <h2 id="ansatz">Technik zuerst.</h2>
+          <p class="lead">Gebäudetechnik ist der Kern jedes Gebäudes. Wir planen sie so, dass sie im Betrieb effizient, zuverlässig und wartungsfreundlich funktioniert.</p>
+        </div>
+        <div class="grid-3">
+          <div class="reveal">
+            <p class="num">01</p>
+            <h3>Integral geplant</h3>
+            <p>Alle Gewerke aus einer Hand. Weniger Schnittstellen zwischen Fachplanern, eine klare Verantwortung für die gesamte Gebäudetechnik.</p>
+          </div>
+          <div class="reveal reveal-d1">
+            <p class="num">02</p>
+            <h3>Digital koordiniert</h3>
+            <p>Mit BIM werden die Gewerke abgestimmt, bevor gebaut wird. Das reduziert Nachträge und Leerläufe.</p>
+          </div>
+          <div class="reveal reveal-d2">
+            <p class="num">03</p>
+            <h3>Auf den Betrieb ausgelegt</h3>
+            <p>Bedarfsgerecht dimensioniert statt überdimensioniert. Das senkt die Betriebskosten, und die Anlagen lassen sich einfach warten.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Fragen ===== -->
+    <section class="section section-light" aria-labelledby="fragen">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Fragen, die wir beantworten</p>
+          <h2 id="fragen">Am Anfang<br>stehen Fragen.</h2>
+        </div>
+        <ul class="questions">
+          <li class="reveal">Lohnt sich eine Wärmepumpe, und welches Heizsystem ist für mein Gebäude wirtschaftlich und nachhaltig optimal?</li>
+          <li class="reveal">Was kostet eine Photovoltaikanlage, und ab wann rechnet sie sich?</li>
+          <li class="reveal">Welche Fördergelder kann ich für meinen Heizungsersatz oder meine Sanierung beanspruchen?</li>
+          <li class="reveal">Welche Optimierungen an einem bestehenden Gebäude sind wirtschaftlich und energetisch sinnvoll?</li>
+          <li class="reveal">Was braucht es für ein Netto-Null- oder Plusenergiehaus?</li>
+          <li class="reveal">Was ist technisch, wirtschaftlich und nachhaltig die beste Lösung für die Wünsche von Bauherrschaft und Architekt?</li>
+          <li class="reveal">Wie viel Gebäudetechnik braucht es wirklich?</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===== Abschluss-CTA ===== -->
+    <section class="section section-border closing" aria-labelledby="termin">
+      <div class="container">
+        <h2 id="termin" class="reveal">Sprechen wir<br>über Ihr Projekt.</h2>
+        <p class="lead reveal reveal-d1">Neubau oder Sanierung, Gesamtplanung oder einzelnes Gewerk: Wir zeigen Ihnen in 30 Minuten, wie wir es angehen würden.</p>
+        <div class="cta reveal reveal-d2">
+          <div class="cta-book">
+                <a class="btn btn-primary" href="https://bookings.cloud.microsoft/bookwithme/user/7e6baff8b7604387a0866d429c4460c0%40scandium.ch/meetingtype/D_EdihVgykGManfOg2yS-w2?anonymous&amp;ismsaljsauthenabled" target="_blank" rel="noopener">Online-Termin buchen</a>
+                <span class="cta-note">per Video, 30 Min, unverbindlich</span>
+              </div>
+        </div>
+        <div class="contact-line reveal reveal-d3">
+          <a href="tel:+41442440209">044 244 02 09</a>
+          <a href="mailto:info@scandium.ch">info@scandium.ch</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== Footer (identisch auf allen Seiten) ===== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <a class="logo" href="index.html">SCANDIUM</a>
+          <address>
+            SCANDIUM AG<br>
+            Thurgauerstrasse 101a<br>
+            8152 Zürich
+          </address>
+          <div class="social">
+            <a href="https://www.linkedin.com/in/asllan-sadrijaj-86872a39a" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.75h4v11H3zM9.5 9.75h3.8v1.5h.06c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.77 2.65 4.77 6.1v5.46h-4v-4.84c0-1.16-.02-2.64-1.61-2.64-1.61 0-1.86 1.26-1.86 2.56v4.92h-4z"/></svg></a>
+            <a href="https://www.instagram.com/scandium.ch" target="_blank" rel="noopener" aria-label="SCANDIUM auf Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.4" cy="6.6" r="1.2" fill="currentColor"/></svg></a>
+          </div>
+        </div>
+        <div>
+          <h4>Seiten</h4>
+          <ul>
+            <li><a href="gebaeudetechnik.html">Gebäudetechnik</a></li>
+            <li><a href="sanierungen.html">Sanierung &amp; Renovation</a></li>
+            <li><a href="verwaltung.html">Verwaltung STWEG</a></li>
+            <li><a href="ueber-uns.html">Über uns</a></li>
+            <li><a href="jobs.html">Jobs</a></li>
+            <li><a href="projekt-scanda.html">Projekt SCANDA</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Kontakt</h4>
+          <ul>
+            <li><a href="tel:+41442440209">044 244 02 09</a></li>
+            <li><a href="mailto:info@scandium.ch">info@scandium.ch</a></li>
+            <li><a href="https://bookings.cloud.microsoft/bookwithme/user/7e6baff8b7604387a0866d429c4460c0%40scandium.ch/meetingtype/D_EdihVgykGManfOg2yS-w2?anonymous&amp;ismsaljsauthenabled" target="_blank" rel="noopener">Online-Termin buchen</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="year">2026</span> SCANDIUM AG</span>
+        <nav class="legal-links" aria-label="Rechtliches"><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a></nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/building-data.js"></script>
+  <script src="assets/js/scene.js"></script>
+</body>
+</html>
