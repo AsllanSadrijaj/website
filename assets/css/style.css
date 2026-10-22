@@ -682,3 +682,10 @@ h3 { font-size: 21px; line-height: 1.25; letter-spacing: -0.02em; }
   .steps3 { grid-template-columns: 1fr; }
   .steps3 > div + div { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); }
 }
+
+/* Hero: zweiter Button direkt neben dem ersten, Hinweis darunter */
+@media (min-width: 821px) {
+  .hero .cta { display: grid; grid-template-columns: auto auto; justify-content: start; align-items: center; gap: 10px 14px; }
+  .hero .cta-book { display: contents; }
+  .hero .cta-note { grid-row: 2; grid-column: 1 / -1; }
+}
