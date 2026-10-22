@@ -29,7 +29,7 @@ function run(THREE) {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let isMobile = mqMobile.matches;
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'default' });
   renderer.setClearColor(0x000000, 0);
   const scene = new THREE.Scene();
   scene.fog = new THREE.Fog(0x000000, 14, 38);
@@ -101,9 +101,22 @@ function run(THREE) {
       ls.geometry.setDrawRange(0, 0);
       return { obj: ls, geo: ls.geometry, count: pos.length / 3, pair: 2 };
     },
+    // Leitung mit sichtbarer Stärke (Rohr), wächst entlang des Pfades
+    growTube(pts, radius, opacity, color) {
+      const path = new THREE.CurvePath();
+      let len = 0;
+      for (let i = 0; i < pts.length - 1; i++) { path.add(new THREE.LineCurve3(pts[i], pts[i + 1])); len += pts[i].distanceTo(pts[i + 1]); }
+      const segs = Math.max(8, Math.ceil(len / (radius * 3)));
+      const geo = new THREE.TubeGeometry(path, segs, radius, 6, false);
+      geo.setDrawRange(0, 0);
+      const m = new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false });
+      const mesh = new THREE.Mesh(geo, m);
+      mesh.frustumCulled = false;
+      return { obj: mesh, geo, count: geo.index.count, pair: 6 };
+    },
     setGrow(item, k) {
       const c = Math.floor(clamp01(k) * item.count);
-      item.geo.setDrawRange(0, item.pair === 2 ? c - (c % 2) : c);
+      item.geo.setDrawRange(0, item.pair > 1 ? c - (c % item.pair) : c);
     }
   };
 
@@ -162,7 +175,7 @@ function run(THREE) {
     if (!force && w === lastW) return;
     lastW = w;
     isMobile = mqMobile.matches;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 2 : 1.75));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 1.75));
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.fov = pick(cam.fov || [34, 44]);
@@ -176,17 +189,26 @@ function run(THREE) {
   window.addEventListener('load', measure);
   resize(true);
 
-  function placeCamera(p, t) {
+  function placeCamera(p, t, info) {
     mouse.x += (mouse.tx - mouse.x) * 0.04;
     mouse.y += (mouse.ty - mouse.y) * 0.04;
     const idle = reduce ? 0 : t * (cam.idle != null ? cam.idle : 0.015);
     const ang = cam.ang0 + p * cam.sweep + idle + mouse.x * 0.05;
     const r = pick(cam.r) - p * pick(cam.dr);
     const y = pick(cam.y) + p * pick(cam.dy) - mouse.y * 0.4;
-    camera.position.set(Math.sin(ang) * r, y, Math.cos(ang) * r);
-    const look = cam.look + p * (cam.dlook || 0);
-    camera.lookAt(0, look, 0);
-    const dist = Math.hypot(r, y - look);
+    const zoom = info && info.zoom ? info.zoom : 0;
+    let lx = 0, ly = cam.look + p * (cam.dlook || 0), lz = 0, rr = r, yy = y;
+    if (zoom > 0 && info.focus) {
+      const e = zoom * zoom * (3 - 2 * zoom);
+      lx = info.focus[0] * e; lz = info.focus[2] * e;
+      ly = ly + (info.focus[1] - ly) * e;
+      rr = r * (1 - (isMobile ? 0.2 : 0.55) * e);
+      yy = y + (info.focus[1] + 1.4 - y) * e;
+    }
+    camera.position.set(lx + Math.sin(ang) * rr, yy, lz + Math.cos(ang) * rr);
+    const look = ly;
+    camera.lookAt(lx, ly, lz);
+    const dist = Math.hypot(rr, yy - look);
     scene.fog.near = dist - (cam.fogNear || 6);
     scene.fog.far = dist + (cam.fogFar || 20);
   }
@@ -202,13 +224,13 @@ function run(THREE) {
     last = now;
     t += dt;
     cur += (getProgress() - cur) * (reduce ? 1 : 1 - Math.exp(-dt * 4.5));
-    if (!reduce) intro = Math.min(1, (now - t0) / 2800);
+    if (!reduce) intro = Math.min(1, (now - t0) / 1400);
     const visible = window.scrollY < scrollEnd + window.innerHeight * 0.5;
     if (!visible && legend) legend.classList.remove('show');
     if (visible || first) {
       const info = api.update(cur, intro, t);
       if (visible) applyLegend(info);
-      placeCamera(cur, t);
+      placeCamera(reduce ? 0.5 : cur, t, reduce ? null : info);
       renderer.render(scene, camera);
       if (first) { canvas.classList.add('ready'); first = false; }
     }
@@ -250,7 +272,7 @@ function buildHome(c) {
     const make = (pts) => {
       const it = name === 'vent'
         ? H.growDuct(pts, 0.32, 0.2, op, COLORS.vent, 0.5, 1.6)
-        : H.growLine(pts, op, COLORS[name], 0.1);
+        : H.growTube(pts, 0.022, op, COLORS[name]);
       root.add(it.obj);
       return it;
     };
@@ -264,6 +286,26 @@ function buildHome(c) {
       pipes[name].push(it);
     }
   });
+
+  // 01b Kollision im Modell: Heizleitung kreuzt den Lüftungskanal in Geschoss 3
+  const CF = 2;
+  const yv = CF * FH + FH - 0.3 - 2 * 0.12;          // Höhe Lüftungskanal
+  const KX = 0.6, KZ = 1.9 - 0.7;                     // Kreuzungspunkt: senkrechte Leitung durch den Kanal
+  const clash = H.growTube([new V(KX, yv + 0.95, KZ), new V(KX, yv - 0.95, KZ)], 0.03, 0.95, COLORS.heat);
+  const fix = H.growTube([new V(KX, yv + 0.95, KZ), new V(KX, yv + 0.45, KZ), new V(KX, yv + 0.3, KZ + 0.6),
+    new V(KX, yv - 0.3, KZ + 0.6), new V(KX, yv - 0.45, KZ), new V(KX, yv - 0.95, KZ)], 0.03, 0.95, COLORS.heat);
+  root.add(clash.obj); root.add(fix.obj);
+  const mark = new THREE.Group();
+  mark.position.set(KX, yv, KZ);
+  const ringGeo = new THREE.RingGeometry(0.27, 0.295, 48);
+  const ringM = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, depthTest: false, side: THREE.DoubleSide });
+  const ringMesh = new THREE.Mesh(ringGeo, ringM);
+  const tick = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new V(-0.14, 0.0, 0), new V(-0.04, -0.1, 0), new V(0.16, 0.12, 0)]),
+    new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthTest: false }));
+  mark.add(ringMesh); mark.add(tick);
+  mark.renderOrder = 10;
+  ringMesh.onBeforeRender = (r, sc, cam) => { mark.quaternion.copy(cam.quaternion); };
+  root.add(mark);
 
   // 02 Verwaltung STWEG: Wohneinheiten
   const units = [];
@@ -294,9 +336,9 @@ function buildHome(c) {
   root.add(pvObj);
   const pvCount = pvPos.length / 3;
 
-  function update(p, intro) {
+  function update(p, intro, t) {
     // Hero: Struktur
-    const build = intro * (0.4 + 0.6 * smooth(0.0, 0.2, p));
+    const build = intro;
     floors.forEach((f, i) => {
       const k = easeOut(clamp01(build * (N + 0.8) - i));
       f.g.position.y = f.y + (1 - k) * 0.7;
@@ -306,9 +348,9 @@ function buildHome(c) {
     });
 
     // 01 Leitungen
-    const q1 = smooth(0.17, 0.42, p);
+    const q1 = Math.max(0.6 * intro, smooth(0.08, 0.25, p));
     const fade = 1 - 0.75 * smooth(0.46, 0.58, p);
-    const info = { show: p > 0.16 && p < 0.52 };
+    const info = { show: p < 0.52 };
     Object.keys(pipes).forEach((name) => {
       pipes[name].forEach((it) => {
         H.setGrow(it, (q1 - it.s) / it.d);
@@ -316,6 +358,24 @@ function buildHome(c) {
       });
       info[name] = q1;
     });
+
+    // 01b Kollision: erscheint, pulsiert, wird gelöst
+    const z = smooth(0.18, 0.3, p) * (1 - smooth(0.46, 0.56, p));
+    const kc = smooth(0.26, 0.31, p);           // Leitung kollidiert
+    const ks = smooth(0.36, 0.42, p);           // gelöst
+    H.setGrow(clash, kc);
+    clash.obj.material.opacity = 0.95 * (1 - ks) * fade;
+    clash.obj.visible = kc > 0.001 && ks < 0.999;
+    H.setGrow(fix, ks);
+    fix.obj.material.opacity = 0.95 * fade;
+    fix.obj.visible = ks > 0.001;
+    const pulse = kc > 0.99 && ks < 0.01 ? 0.5 + 0.5 * Math.sin(t * 7) : 0;
+    ringM.opacity = (kc * (1 - ks) * (0.55 + 0.45 * pulse) + ks * 0.9) * z;
+    ringM.color.setHex(ks > 0.5 ? 0xffffff : COLORS.heat);
+    tick.material.opacity = ks * z;
+    mark.scale.setScalar(1 + 0.15 * pulse);
+    info.zoom = z;
+    info.focus = [KX, yv, KZ];
 
     // 02 Wohneinheiten nacheinander
     const q2 = smooth(0.45, 0.66, p);
@@ -343,9 +403,9 @@ function buildHome(c) {
     update,
     cam: {
       ang0: -0.75, sweep: 1.9, idle: 0.018,
-      r: [27, 37], dr: [2, 3],
+      r: [29, 52], dr: [2, 3],
       y: [5, 14], dy: [7, 3],
-      look: TOP * 0.45, dlook: 0.4, fov: [34, 44], gridY: 0, mobileShift: 0.28
+      look: TOP * 0.45, dlook: 0.4, fov: [34, 44], gridY: 0, mobileShift: 0.34, shift: 0.26
     }
   };
 }
@@ -413,7 +473,7 @@ function buildTechnik(c) {
       const o = t.off + pv;
       const yUG = -3 + t.y;
       const make = (pts, s, d) => {
-        const it = name === 'vent' ? H.growDuct(pts, 0.5, 0.3, 0.75, COLORS.vent) : H.growLine(pts, 0.95, COLORS[name]);
+        const it = name === 'vent' ? H.growDuct(pts, 0.5, 0.3, 0.75, COLORS.vent) : H.growTube(pts, 0.11, 0.95, COLORS[name]);
         it.s = s; it.d = d;
         root.add(it.obj);
         trades[name].push(it);
@@ -756,12 +816,37 @@ function buildAbout(c) {
 
   // Regionen (grob nach Lage: Westen = -x, Süden = +z)
   const REG = [
-    { x: 0, z: 0, r: 3.2, w: 0.34 },       // Zürich
-    { x: -5.6, z: -1.2, r: 2.2, w: 0.22 },  // Aargau
-    { x: -3.6, z: 4.8, r: 1.9, w: 0.15 },   // Luzern
-    { x: -9.2, z: 1.2, r: 1.8, w: 0.12 },   // Solothurn
-    { x: -9.8, z: 6.2, r: 2.1, w: 0.17 }    // Bern
+    { x: 0, z: 0, r: 3.2, w: 0.34, name: 'Zürich' },
+    { x: -5.6, z: -1.2, r: 2.2, w: 0.22, name: 'Aargau' },
+    { x: -3.6, z: 4.8, r: 1.9, w: 0.15, name: 'Luzern' },
+    { x: -9.2, z: 1.2, r: 1.8, w: 0.12, name: 'Solothurn' },
+    { x: -9.8, z: 6.2, r: 2.1, w: 0.17, name: 'Bern' }
   ];
+  // Regionen beschriften: Umriss als feiner Kreis und Name als Schild
+  function label(text) {
+    const cv = document.createElement('canvas');
+    cv.width = 512; cv.height = 128;
+    const g = cv.getContext('2d');
+    g.font = '500 56px Inter, -apple-system, Helvetica Neue, Arial, sans-serif';
+    g.fillStyle = '#f5f5f7';
+    g.textBaseline = 'middle';
+    g.letterSpacing = '6px';
+    g.fillText(text.toUpperCase(), 12, 64);
+    const tex = new THREE.CanvasTexture(cv);
+    tex.anisotropy = 4;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0, depthWrite: false, depthTest: false }));
+    sp.scale.set(2.8, 0.7, 1);
+    sp.center.set(0, 0.5);
+    return sp;
+  }
+  const regionMarks = REG.map((r, i) => {
+    const pts = [];
+    for (let k = 0; k <= 72; k++) { const a = (k / 72) * Math.PI * 2; pts.push(new V(r.x + Math.cos(a) * (r.r + 0.5), 0.01, r.z + Math.sin(a) * (r.r + 0.5))); }
+    const circle = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), c.mat(0));
+    const sp = label(r.name);
+    sp.position.set(r.x - r.r * 0.2, 1.4 + (i === 0 ? 2.6 : 0), r.z + r.r + 0.9);
+    return { circle, sp, d: i * 0.06 };
+  });
   const pickRegion = () => { let u = rnd(), a = 0; for (const r of REG) { a += r.w; if (u <= a) return r; } return REG[0]; };
 
   // Haus als Liniensegmente: Quader + Satteldach
@@ -827,6 +912,8 @@ function buildAbout(c) {
     return it;
   });
 
+  regionMarks.forEach((m) => { root.add(m.circle); root.add(m.sp); });
+
   // Mittelpunkt der Szene leicht nach Westen verschieben
   root.position.set(1.2, 0, -1.6);
 
@@ -841,6 +928,11 @@ function buildAbout(c) {
     hq.visible = kh > 0.001;
     ring.material.opacity = 0.5 * kh;
     links.forEach((it) => H.setGrow(it, (smooth(0.62, 0.95, p) - it.s) / 0.6));
+    regionMarks.forEach((m) => {
+      const k = clamp01((intro - 0.3 - m.d) / 0.5);
+      m.circle.material.opacity = 0.16 * k;
+      m.sp.material.opacity = 0.6 * k;
+    });
     return null;
   }
 
@@ -850,7 +942,7 @@ function buildAbout(c) {
       ang0: -0.15, sweep: 0.55, idle: 0.01,
       r: [18, 24], dr: [2, 3],
       y: [14, 19], dy: [-3, -3],
-      look: 0.4, fov: [34, 44], gridY: -0.01, gridSize: 60, mobileShift: 0.22,
+      look: 0.4, fov: [34, 44], gridY: -0.01, gridSize: 60, mobileShift: 0.22, shift: 0.33,
       fogNear: 4, fogFar: 22
     }
   };
