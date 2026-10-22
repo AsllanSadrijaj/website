@@ -121,7 +121,7 @@ function run(THREE) {
   };
 
   const ctx = { THREE, scene, V, H, mat, clamp01, smooth, easeOut, reduce, mobile: () => isMobile };
-  const builders = { home: buildHome, technik: buildTechnik, renovation: buildRenovation, verwaltung: buildVerwaltung, about: buildAbout, jobs: buildJobs, scanda: buildScanda };
+  const builders = { home: buildHome, technik: (cc) => buildHome(cc, { tech: true }), plan: buildTechnik, renovation: buildRenovation, verwaltung: buildVerwaltung, about: buildAbout, jobs: buildJobs, scanda: buildScanda };
   const api = (builders[KIND] || buildHome)(ctx) || buildHome(ctx);
   const cam = api.cam;
 
@@ -202,15 +202,16 @@ function run(THREE) {
       const e = zoom * zoom * (3 - 2 * zoom);
       lx = info.focus[0] * e; lz = info.focus[2] * e;
       ly = ly + (info.focus[1] - ly) * e;
-      rr = r * (1 - (isMobile ? 0.2 : 0.55) * e);
-      yy = y + (info.focus[1] + 1.4 - y) * e;
+      rr = r * (1 - (isMobile ? (info.zoomMob != null ? info.zoomMob : 0.6) : 1) * (info.zoomAmt || 0.55) * e);
+      yy = y + (info.focus[1] + (info.lift != null ? info.lift : 1.4) - y) * e;
     }
     camera.position.set(lx + Math.sin(ang) * rr, yy, lz + Math.cos(ang) * rr);
     const look = ly;
     camera.lookAt(lx, ly, lz);
     const dist = Math.hypot(rr, yy - look);
-    scene.fog.near = dist - (cam.fogNear || 6);
-    scene.fog.far = dist + (cam.fogFar || 20);
+    const fz = info && info.fogZoom ? info.fogZoom : 0;
+    scene.fog.near = Math.max(0.1, dist - (cam.fogNear || 6) * (1 - fz * 0.9));
+    scene.fog.far = dist + (cam.fogFar || 20) * (1 - fz * 0.8);
   }
 
   let last = performance.now();
@@ -244,7 +245,8 @@ function run(THREE) {
    Hero: Tragstruktur · 01 Leitungen · 02 Wohneinheiten
    (Stockwerkeigentum) · 03 neue Fassade und PV
    ====================================================== */
-function buildHome(c) {
+function buildHome(c, opts) {
+  const TECH = !!(opts && opts.tech);
   const { THREE, scene, V, H, clamp01, smooth, easeOut } = c;
   const W = 8, D = 6, FH = 1.25, N = 5, TOP = N * FH;
   const root = new THREE.Group();
@@ -307,6 +309,62 @@ function buildHome(c) {
   ringMesh.onBeforeRender = (r, sc, cam) => { mark.quaternion.copy(cam.quaternion); };
   root.add(mark);
 
+  // 02b Verwaltung: Büro im dritten Geschoss, Frau am Computer (Strichzeichnung)
+  const office = new THREE.Group();
+  const OX = 1.0, OY = 2 * FH + 0.07, OZ = 1.1;
+  office.position.set(OX, OY, OZ);
+  const offItems = [];
+  const addO = (obj, base) => { obj.userData.base = base; obj.material.depthTest = true; office.add(obj); offItems.push(obj); return obj; };
+  const S = (arr, base) => addO(H.segs(arr, 0), base);
+  const B = (w, h, d, x, y, z, base) => { const b = H.box(w, h, d, 0); b.position.set(x, y, z); return addO(b, base); };
+  // Raum: Boden und zwei Wände angedeutet
+  S([-0.7, 0, -0.7, 0.9, 0, -0.7, 0.9, 0, -0.7, 0.9, 0, 0.7, -0.7, 0, -0.7, -0.7, 0, 0.7,
+     -0.7, 0, -0.7, -0.7, 1.1, -0.7, 0.9, 0, -0.7, 0.9, 1.1, -0.7, -0.7, 1.1, -0.7, 0.9, 1.1, -0.7,
+     0.9, 0, -0.7, 0.9, 1.1, -0.7, 0.9, 1.1, -0.7, 0.9, 1.1, 0.7, 0.9, 0, 0.7, 0.9, 1.1, 0.7], 0.22);
+  // Fenster in der Rückwand
+  S([-0.35, 0.35, -0.69, 0.45, 0.35, -0.69, 0.45, 0.35, -0.69, 0.45, 0.85, -0.69, 0.45, 0.85, -0.69, -0.35, 0.85, -0.69, -0.35, 0.85, -0.69, -0.35, 0.35, -0.69, 0.05, 0.35, -0.69, 0.05, 0.85, -0.69], 0.3);
+  // Schreibtisch
+  B(0.36, 0.018, 0.72, 0.42, 0.37, 0, 0.9);
+  S([0.26, 0, -0.33, 0.26, 0.36, -0.33, 0.58, 0, -0.33, 0.58, 0.36, -0.33, 0.26, 0, 0.33, 0.26, 0.36, 0.33, 0.58, 0, 0.33, 0.58, 0.36, 0.33], 0.7);
+  // Bildschirm (Front zeigt nach -x) mit Fuss
+  B(0.02, 0.2, 0.34, 0.55, 0.52, 0, 0.95);
+  S([0.56, 0.38, 0, 0.56, 0.42, 0, 0.52, 0.38, -0.06, 0.6, 0.38, 0.06, 0.52, 0.38, 0.06, 0.6, 0.38, -0.06], 0.7);
+  // Tabelle auf dem Bildschirm, baut sich auf
+  const sheetPos = [];
+  for (let r = 0; r < 6; r++) { const y = 0.6 - r * 0.03; sheetPos.push(0.538, y, -0.14, 0.538, y, 0.14); }
+  for (let c = 0; c < 4; c++) { const z = -0.14 + c * 0.0933; sheetPos.push(0.538, 0.6, z, 0.538, 0.45, z); }
+  const sheet = S(sheetPos, 0.85); sheet.geometry.setDrawRange(0, 0);
+  const sheetCount = sheetPos.length / 3;
+  // Tastatur
+  B(0.08, 0.01, 0.24, 0.34, 0.385, 0.02, 0.8);
+  // Stuhl
+  B(0.2, 0.02, 0.2, 0.02, 0.23, 0, 0.75);
+  S([-0.08, 0.24, -0.09, -0.1, 0.52, -0.09, -0.08, 0.24, 0.09, -0.1, 0.52, 0.09, -0.1, 0.52, -0.09, -0.1, 0.52, 0.09, -0.09, 0.4, -0.09, -0.09, 0.4, 0.09,
+     0.02, 0.22, 0, 0.02, 0.05, 0, 0.02, 0.05, 0, 0.13, 0.01, 0, 0.02, 0.05, 0, -0.09, 0.01, 0, 0.02, 0.05, 0, 0.02, 0.01, 0.11, 0.02, 0.05, 0, 0.02, 0.01, -0.11], 0.6);
+  // Frau, sitzend, blickt zum Bildschirm (+x)
+  const fig = [];
+  const L = (a, b) => fig.push(...a, ...b);
+  const ring = (cx, cy, cz, r, n, plane) => { for (let i = 0; i < n; i++) { const a0 = i / n * Math.PI * 2, a1 = (i + 1) / n * Math.PI * 2;
+    if (plane === 'xy') L([cx + Math.cos(a0) * r, cy + Math.sin(a0) * r, cz], [cx + Math.cos(a1) * r, cy + Math.sin(a1) * r, cz]);
+    else L([cx, cy + Math.sin(a0) * r, cz + Math.cos(a0) * r], [cx, cy + Math.sin(a1) * r, cz + Math.cos(a1) * r]); } };
+  ring(0.1, 0.66, 0, 0.062, 20, 'xy');               // Kopf (Profil)
+  ring(0.1, 0.66, 0, 0.062, 20, 'yz');
+  ring(0.035, 0.70, 0, 0.032, 14, 'xy');             // Haarknoten
+  L([0.045, 0.71, 0], [0.1, 0.725, 0]); L([0.045, 0.62, 0], [0.06, 0.6, 0]);   // Haarlinie
+  L([0.09, 0.6, 0], [0.085, 0.565, 0]);              // Hals
+  L([0.085, 0.555, -0.085], [0.085, 0.555, 0.085]);  // Schultern
+  L([0.085, 0.555, -0.075], [0.06, 0.27, -0.06]); L([0.085, 0.555, 0.075], [0.06, 0.27, 0.06]);  // Oberkörper
+  L([0.06, 0.27, -0.06], [0.06, 0.27, 0.06]);
+  [-1, 1].forEach((s) => {
+    L([0.085, 0.555, s * 0.085], [0.16, 0.43, s * 0.1]);   // Oberarm
+    L([0.16, 0.43, s * 0.1], [0.32, 0.395, s * 0.06]);     // Unterarm zur Tastatur
+    L([0.06, 0.27, s * 0.05], [0.27, 0.25, s * 0.055]);    // Oberschenkel
+    L([0.27, 0.25, s * 0.055], [0.26, 0.03, s * 0.06]);    // Unterschenkel
+    L([0.26, 0.03, s * 0.06], [0.33, 0.01, s * 0.06]);     // Fuss
+  });
+  const figure = S(fig, 1.0);
+  root.add(office);
+
   // 02 Verwaltung STWEG: Wohneinheiten
   const units = [];
   for (let f = 0; f < N; f++) {
@@ -337,6 +395,8 @@ function buildHome(c) {
   const pvCount = pvPos.length / 3;
 
   function update(p, intro, t) {
+    if (TECH) p = p * 0.46;   // nur Gebäudetechnik: Leitungen und Kollision
+    const z2 = TECH ? 0 : smooth(0.5, 0.6, p) * (1 - smooth(0.74, 0.84, p));
     // Hero: Struktur
     const build = intro;
     floors.forEach((f, i) => {
@@ -349,7 +409,7 @@ function buildHome(c) {
 
     // 01 Leitungen
     const q1 = Math.max(0.6 * intro, smooth(0.08, 0.25, p));
-    const fade = 1 - 0.75 * smooth(0.46, 0.58, p);
+    const fade = (1 - 0.75 * smooth(0.46, 0.58, p)) * (1 - 0.9 * z2);
     const info = { show: p < 0.52 };
     Object.keys(pipes).forEach((name) => {
       pipes[name].forEach((it) => {
@@ -376,14 +436,27 @@ function buildHome(c) {
     mark.scale.setScalar(1 + 0.15 * pulse);
     info.zoom = z;
     info.focus = [KX, yv, KZ];
+    info.zoomAmt = 0.55;
+    // 02 Verwaltung: Fahrt ins Gebäude
+    if (z2 > z) {
+      info.zoom = z2; info.focus = [OX + 0.2, OY + 0.42, OZ]; info.zoomAmt = 0.905; info.zoomMob = 0.93;
+      info.lift = 0.55; info.fogZoom = z2;
+    }
+    // Büro einblenden
+    const ko = smooth(0.25, 0.85, z2);
+    office.visible = ko > 0.001;
+    offItems.forEach((o) => { o.material.opacity = o.userData.base * ko; });
+    const kt = smooth(0.6, 0.72, p);
+    const ns = Math.floor(kt * sheetCount);
+    sheet.geometry.setDrawRange(0, ns - (ns % 2));
 
     // 02 Wohneinheiten nacheinander
-    const q2 = smooth(0.45, 0.66, p);
+    const q2 = smooth(0.5, 0.68, p);
     const out2 = 1 - 0.75 * smooth(0.74, 0.86, p);
     units.forEach((u) => {
       const k = clamp01(q2 * (units.length + 2) - u.i);
       const flash = k > 0 && k < 1 ? 0.35 * Math.sin(k * Math.PI) : 0;
-      u.b.material.opacity = (0.7 * k + flash) * out2;
+      u.b.material.opacity = ((0.7 * k + flash) * out2) * (1 - 0.85 * z2);
       u.b.visible = k > 0.001;
     });
 
